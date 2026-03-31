@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta name="google-adsense-account" content="ca-pub-3356112593497100">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tuyển Sinh Hub 2026 - Toàn Quốc</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root { --primary: #2563eb; --bg: #f8fafc; --card: #ffffff; --text: #1e293b; }
+        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 10px; }
+        .container { max-width: 800px; margin: 0 auto; padding-bottom: 50px; }
+
+        /* Header & Banner */
+        header { text-align: center; background: var(--card); border-radius: 20px; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.05); margin-bottom: 20px; }
+        .banner-img { width: 100%; height: 200px; object-fit: cover; }
+        .header-content { padding: 15px; }
+        h1 { color: var(--primary); font-size: 22px; margin: 0; }
+
+        /* Form Tra Cứu */
+        .search-section { background: var(--card); padding: 20px; border-radius: 20px; box-shadow: 0 10px 15px rgba(0,0,0,0.05); }
+        .input-box { margin-bottom: 15px; position: relative; }
+        label { display: block; font-weight: 600; margin-bottom: 8px; font-size: 14px; color: #64748b; }
+        
+        input, select { width: 100%; padding: 12px; border: 1.5px solid #e2e8f0; border-radius: 10px; font-size: 16px; box-sizing: border-box; outline: none; }
+        .score-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 10px; }
+
+        /* Gợi ý tìm kiếm */
+        .search-results { max-height: 200px; overflow-y: auto; border: 1px solid #e2e8f0; border-radius: 10px; margin-top: 5px; display: none; background: white; position: absolute; width: 100%; z-index: 100; }
+        .result-item { padding: 12px; border-bottom: 1px solid #f1f5f9; cursor: pointer; }
+        .result-item:hover { background: #f8fafc; }
+
+        button { width: 100%; padding: 15px; background: var(--primary); color: white; border: none; border-radius: 12px; font-size: 17px; font-weight: bold; margin-top: 15px; cursor: pointer; }
+
+        /* Kết quả */
+        #finalResult { margin-top: 20px; display: none; }
+        .res-card { background: white; padding: 20px; border-radius: 20px; border-top: 6px solid var(--primary); box-shadow: 0 4px 10px rgba(0,0,0,0.1); position: relative; }
+        .res-img { width: 80px; height: 80px; object-fit: cover; border-radius: 50%; position: absolute; top: 15px; right: 15px; border: 3px solid #eee; }
+        .badge { display: block; text-align: center; padding: 12px; border-radius: 10px; font-weight: bold; margin-top: 15px; }
+        .high { background: #dcfce7; color: #166534; }
+        .low { background: #fee2e2; color: #991b1b; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <img src="1000020194.jpg" class="banner-img" alt="Banner">
+        <div class="header-content">
+            <h1><i class="fas fa-university"></i> Tuyển Sinh Hub 2026</h1>
+            <p>Tra cứu điểm chuẩn toàn quốc - Đa khối thi</p>
+        </div>
+    </header>
+
+    <div class="search-section">
+        <div class="input-box">
+            <label>1. Tìm tên Trường hoặc Ngành (VD: CNTT, Bách Khoa...):</label>
+            <input type="text" id="searchInput" placeholder="Nhập để tìm kiếm..." oninput="handleSearch()">
+            <div id="searchSuggestions" class="search-results"></div>
+        </div>
+
+        <div id="selectionInfo" style="display:none; margin-bottom:15px; padding:10px; background:#eef2ff; border-radius:10px; font-size:14px;">
+             Đang chọn: <b id="currentSelection"></b>
+        </div>
+
+        <div class="input-box" id="scoreInputArea" style="display:none;">
+            <label id="scoreLabel"></label>
+            <div id="scoreFields" class="score-row"></div>
+        </div>
+
+        <button onclick="checkChance()"><i class="fas fa-search"></i> Phân tích cơ hội</button>
+    </div>
+
+    <div id="finalResult">
+        <div class="res-card">
+            <img src="1000020193.png" class="res-img" alt="Result Illustration">
+            <div id="resContent"></div>
+        </div>
+    </div>
+
+    <div style="text-align:center; margin-top:30px;">
+        <p style="color:#64748b; font-size:14px;">Cùng thảo luận và chọn trường đúng!</p>
+        <img src="1000020192.jpg" style="width:100%; max-width:400px; border-radius:15px;" alt="Footer Illustration">
+    </div>
+</div>
+
+<script>
+    const database = [
+        { s: "ĐH Công nghệ Thông tin (UIT)", m: "Kỹ thuật Phần mềm", g: "A01", d: 28.5 },
+        { s: "ĐH Công nghệ Thông tin (UIT)", m: "Khoa học Máy tính", g: "A00", d: 28.0 },
+        { s: "ĐH Sư phạm Hà Nội", m: "Sư phạm Toán", g: "A00", d: 27.5 },
+        { s: "ĐH Y Dược TP.HCM", m: "Y khoa", g: "B00", d: 28.3 },
+        { s: "ĐH KHXH&NV (HCM)", m: "Báo chí", g: "C00", d: 28.0 },
+        { s: "ĐH Ngoại thương", m: "Kinh tế đối ngoại", g: "D01", d: 28.2 }
+    ];
+
+    const groupMap = {
+        "A00": ["Toán", "Lý", "Hóa"], "A01": ["Toán", "Lý", "Anh"],
+        "B00": ["Toán", "Hóa", "Sinh"], "C00": ["Văn", "Sử", "Địa"], "D01": ["Toán", "Văn", "Anh"]
+    };
+
+    let selected = null;
+
+    function handleSearch() {
+        const val = document.getElementById('searchInput').value.toLowerCase();
+        const sugg = document.getElementById('searchSuggestions');
+        if (val.length < 2) { sugg.style.display = 'none'; return; }
+        
+        const filtered = database.filter(i => i.s.toLowerCase().includes(val) || i.m.toLowerCase().includes(val));
+        sugg.innerHTML = filtered.map(i => `
+            <div class="result-item" onclick="selectItem(${database.indexOf(i)})">
+                <b>${i.s}</b> - ${i.m} <br><small>Khối: ${i.g} | Điểm 2025: ${i.d}</small>
+            </div>`).join('');
+        sugg.style.display = filtered.length ? 'block' : 'none';
+    }
+
+    function selectItem(idx) {
+        selected = database[idx];
+        document.getElementById('currentSelection').innerText = `${selected.s} (${selected.m})`;
+        document.getElementById('selectionInfo').style.display = 'block';
+        document.getElementById('searchSuggestions').style.display = 'none';
+        document.getElementById('searchInput').value = "";
+        
+        const fields = document.getElementById('scoreFields');
+        document.getElementById('scoreLabel').innerText = `2. Nhập điểm Khối ${selected.g}:`;
+        fields.innerHTML = groupMap[selected.g].map((sub, i) => `
+            <input type="number" id="sc${i}" placeholder="${sub}" step="0.1">`).join('');
+        document.getElementById('scoreInputArea').style.display = 'block';
+    }
+
+    function checkChance() {
+        if (!selected) return alert("Chọn trường trước!");
+        let total = 0;
+        for (let i = 0; i < 3; i++) {
+            let v = parseFloat(document.getElementById(`sc${i}`).value) || 0;
+            total += v;
+        }
+        if (total === 0) return alert("Nhập điểm của bạn!");
+
+        const diff = (total - selected.d).toFixed(2);
+        const isHigh = diff >= 0;
+        
+        document.getElementById('finalResult').style.display = 'block';
+        document.getElementById('resContent').innerHTML = `
+            <h3>${selected.s}</h3>
+            <p>Ngành: <b>${selected.m}</b></p>
+            <p>Tổng điểm: <b style="font-size:20px">${total}</b></p>
+            <div class="badge ${isHigh ? 'high' : 'low'}">
+                ${isHigh ? 'CƠ HỘI CAO' : 'CẦN CỐ GẮNG'} (Chênh lệch: ${diff})
+            </div>
+        `;
+        window.scrollTo(0, document.body.scrollHeight);
+    }
+</script>
+</body>
+</html>
